@@ -3,7 +3,7 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
-export default function VideoScene({ src, caption, textAlign = "left", id }) {
+export default function VideoScene({ src, sources, poster, caption, textAlign = "left", id }) {
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
   const captionRef = useRef(null);
@@ -56,6 +56,8 @@ export default function VideoScene({ src, caption, textAlign = "left", id }) {
         muted
         playsInline
         loop
+        preload="metadata"
+        poster={poster}
         style={{
           position: "absolute",
           inset: 0,
@@ -64,7 +66,9 @@ export default function VideoScene({ src, caption, textAlign = "left", id }) {
           objectFit: "cover",
         }}
       >
-        <source src={src} type="video/mp4" />
+        {(sources && sources.length > 0 ? sources : [{ src }]).map((s, i) => (
+          <source key={i} src={s.src} type="video/mp4" media={s.media || undefined} />
+        ))}
       </video>
 
       {/* Overlay */}

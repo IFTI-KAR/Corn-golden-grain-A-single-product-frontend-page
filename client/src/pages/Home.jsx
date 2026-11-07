@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Hero from "../components/Hero";
 import CornOrigin from "../components/CornOrigin";
+import CinematicScene from "../components/CinematicScene";
 import VideoScene from "../components/VideoScene";
 import NutritionCard from "../components/NutritionCard";
 import ImageGallery1 from "../components/ImageGallery1";
@@ -32,12 +33,16 @@ export default function Home() {
       {/* 2. Origin */}
       <CornOrigin />
 
-      {/* 3. Video Scene 1 */}
-      <VideoScene
-        id="video-1"
-        src="/media/videos/corn-growth.mp4"
+      {/* 3. Cinematic Scene 1 — real field photo (4K AVIF/JPG set) */}
+      <CinematicScene
+        id="scene-1"
+        stem="corn-harvest"
+        masterWidth={626}
+        widths={[320, 480]}
+        alt="Corn cob on its stalk in a sunlit corn field"
         caption="From seed to stalk — 60 to 100 days of transformation"
         textAlign="left"
+        objectPosition="center 45%"
       />
 
       {/* 4. Nutrition Facts */}
@@ -49,10 +54,15 @@ export default function Home() {
       {/* 6. Varieties Carousel */}
       <Varieties varietiesData={varietiesData} />
 
-      {/* 7. Video Scene 2 */}
+      {/* 7. Video Scene 2 — Pexels 10051002 tassels at sunset, 4K loop */}
       <VideoScene
-        id="video-2"
-        src="/media/videos/hero-loop.mp4"
+        id="scene-2"
+        sources={[
+          { src: "/media/videos/harvest-720.mp4", media: "(max-width: 767px)" },
+          { src: "/media/videos/harvest-1080.mp4", media: "(max-width: 1919px)" },
+          { src: "/media/videos/harvest-4k.mp4" },
+        ]}
+        poster="/media/videos/harvest-poster.jpg"
         caption="Harvested by hand, grown with purpose"
         textAlign="right"
       />

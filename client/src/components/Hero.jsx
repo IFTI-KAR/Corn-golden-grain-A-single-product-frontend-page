@@ -82,9 +82,13 @@ export default function Hero() {
           muted
           loop
           playsInline
+          preload="metadata"
+          poster="/media/videos/hero-poster.jpg"
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         >
-          <source src="/media/videos/hero-loop.mp4" type="video/mp4" />
+          <source src="/media/videos/hero-720.mp4" type="video/mp4" media="(max-width: 767px)" />
+          <source src="/media/videos/hero-1080.mp4" type="video/mp4" media="(max-width: 1919px)" />
+          <source src="/media/videos/hero-4k.mp4" type="video/mp4" />
         </video>
       </div>
 
