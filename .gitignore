@@ -1,0 +1,13 @@
+# deps + build output
+node_modules/
+client/dist/
+.netlify/
+
+# secrets
+.env
+
+# large reference-only masters (watermarked/preview + heavy 4K, do not publish)
+media-masters/
+
+# local junk
+.DS_Store

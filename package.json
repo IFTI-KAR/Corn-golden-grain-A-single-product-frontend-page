@@ -1,0 +1,22 @@
+{
+  "name": "corn-nutrition-frontend-main",
+  "version": "1.0.0",
+  "description": "A cinematic, mobile-first scrolling experience about corn and its nutrition, built with React/Vite and deployed on Netlify.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "mongoose": "^9.12.0",
+    "morgan": "^1.12.1",
+    "serverless-http": "^4.0.0"
+  }
+}
