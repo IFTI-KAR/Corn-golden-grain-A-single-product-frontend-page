@@ -4,11 +4,57 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const STATIC_VARIETIES = [
-  { _id: "1", name: "Yellow Sweet Corn", color: "#F5C842", origin: "United States", flavorProfile: "Sweet, juicy, tender — the classic summer corn", image: "corn-varieties.jpg" },
-  { _id: "2", name: "Blue Corn", color: "#4A5A8A", origin: "Southwestern USA & Mexico", flavorProfile: "Earthy, slightly nutty with a dense texture", image: "corn-closeup-01.jpg" },
-  { _id: "3", name: "White Corn", color: "#E8E0D0", origin: "Mexico & Central America", flavorProfile: "Mild, starchy with a subtle sweetness", image: "corn-closeup-02.jpg" },
-  { _id: "4", name: "Purple Corn", color: "#5B2D8E", origin: "Peru & Andes", flavorProfile: "Bold, berry-like with deep antioxidant notes", image: "corn-harvest.jpg" },
+  { _id: "1", name: "Yellow Sweet Corn", color: "#F5C842", origin: "United States", flavorProfile: "Sweet, juicy, tender — the classic summer corn", image: "corn-varieties.jpg", video: "variety-yellow" },
+  { _id: "2", name: "Blue Corn", color: "#4A5A8A", origin: "Southwestern USA & Mexico", flavorProfile: "Earthy, slightly nutty with a dense texture", image: "corn-closeup-01.jpg", video: "variety-blue" },
+  { _id: "3", name: "White Corn", color: "#E8E0D0", origin: "Mexico & Central America", flavorProfile: "Mild, starchy with a subtle sweetness", image: "corn-closeup-02.jpg", video: "variety-white" },
+  { _id: "4", name: "Purple Corn", color: "#5B2D8E", origin: "Peru & Andes", flavorProfile: "Bold, berry-like with deep antioxidant notes", image: "corn-harvest.jpg", video: "variety-purple" },
 ];
+
+// Pexels sources: 9429439 golden close-up / 36314050 heirloom (blue segment) / 8108985 white choclo market / 36314050 heirloom (purple segment)
+function videoBaseFor(variety) {
+  if (variety?.video) return variety.video;
+  const byId = { "1": "variety-yellow", "2": "variety-blue", "3": "variety-white", "4": "variety-purple" };
+  if (byId[variety?._id]) return byId[variety._id];
+  const n = (variety?.name || "").toLowerCase();
+  if (n.includes("yellow")) return "variety-yellow";
+  if (n.includes("blue")) return "variety-blue";
+  if (n.includes("white")) return "variety-white";
+  if (n.includes("purple")) return "variety-purple";
+  return null;
+}
+
+function VarietyVideo({ variety }) {
+  const base = videoBaseFor(variety);
+  const ref = useRef(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const play = () => v.play().catch(() => {});
+    const pause = () => v.pause();
+    let observer;
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(([e]) => (e.isIntersecting ? play() : pause()), { threshold: 0.2 });
+      observer.observe(v);
+    }
+    return () => observer?.disconnect();
+  }, []);
+  return (
+    <video
+      ref={ref}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      poster={`/media/images/${variety.image}`}
+      aria-label={`${variety.name} — video`}
+      style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
+    >
+      <source src={`/media/videos/${base}-720.mp4`} type="video/mp4" media="(max-width: 767px)" />
+      <source src={`/media/videos/${base}-1080.mp4`} type="video/mp4" />
+    </video>
+  );
+}
 
 export default function Varieties({ varietiesData }) {
   const sectionRef = useRef(null);
@@ -104,10 +150,14 @@ export default function Varieties({ varietiesData }) {
         >
           {items.map((variety) => (
             <div key={variety._id} className="variety-card" style={{ borderTop: `3px solid ${variety.color}` }}>
-              <img
-                src={`/media/images/${variety.image}`}
-                alt={variety.name}
-              />
+              {videoBaseFor(variety) ? (
+                <VarietyVideo variety={variety} />
+              ) : (
+                <img
+                  src={`/media/images/${variety.image}`}
+                  alt={variety.name}
+                />
+              )}
               <div className="variety-card-overlay">
                 <span className="mono-label" style={{ color: variety.color, marginBottom: "0.75rem" }}>
                   {variety.origin}
