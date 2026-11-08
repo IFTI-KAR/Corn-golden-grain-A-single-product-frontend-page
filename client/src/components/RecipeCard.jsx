@@ -4,10 +4,56 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const STATIC_RECIPES = [
-  { _id: "1", title: "Elote (Mexican Street Corn)", image: "recipe-01.jpg", prepTime: "15 min", difficulty: "Easy", nutritionHighlight: "High in Fiber & Vitamin C", tags: ["Mexican", "Grilled"] },
-  { _id: "2", title: "Creamy Corn Chowder", image: "recipe-02.jpg", prepTime: "35 min", difficulty: "Medium", nutritionHighlight: "Rich in Potassium & Folate", tags: ["Soup", "Comfort Food"] },
-  { _id: "3", title: "Blue Corn Tortillas", image: "recipe-03.jpg", prepTime: "20 min", difficulty: "Medium", nutritionHighlight: "Antioxidant-rich Anthocyanins", tags: ["Mexican", "Gluten-Free"] },
+  { _id: "1", title: "Elote (Mexican Street Corn)", image: "recipe-01.jpg", prepTime: "15 min", difficulty: "Easy", nutritionHighlight: "High in Fiber & Vitamin C", tags: ["Mexican", "Grilled"], video: "recipe-01-elote" },
+  { _id: "2", title: "Creamy Corn Chowder", image: "recipe-02.jpg", prepTime: "35 min", difficulty: "Medium", nutritionHighlight: "Rich in Potassium & Folate", tags: ["Soup", "Comfort Food"], video: "recipe-02-chowder" },
+  { _id: "3", title: "Blue Corn Tortillas", image: "recipe-03.jpg", prepTime: "20 min", difficulty: "Medium", nutritionHighlight: "Antioxidant-rich Anthocyanins", tags: ["Mexican", "Gluten-Free"], video: "recipe-03-tortilla" },
 ];
+
+// Pexels sources (free license): 5616346 corncob on grill / 2882111 boiling corn cobs / 9737919 tortilla press
+function videoBaseFor(recipe) {
+  if (recipe?.video) return recipe.video;
+  const byId = { "1": "recipe-01-elote", "2": "recipe-02-chowder", "3": "recipe-03-tortilla" };
+  if (byId[recipe?._id]) return byId[recipe._id];
+  const t = (recipe?.title || "").toLowerCase();
+  if (t.includes("elote") || t.includes("street")) return "recipe-01-elote";
+  if (t.includes("chowder") || t.includes("soup")) return "recipe-02-chowder";
+  if (t.includes("tortilla")) return "recipe-03-tortilla";
+  return null;
+}
+
+function RecipeVideo({ base, poster, className, style, title }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    const play = () => v.play().catch(() => {});
+    const pause = () => v.pause();
+    let observer;
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(([e]) => (e.isIntersecting ? play() : pause()), { threshold: 0.15 });
+      observer.observe(v);
+    }
+    return () => observer?.disconnect();
+  }, []);
+  return (
+    <video
+      ref={ref}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      poster={poster}
+      aria-label={title ? `${title} — video` : undefined}
+      className={className}
+      style={style}
+    >
+      <source src={`/media/videos/${base}-720.mp4`} type="video/mp4" media="(max-width: 767px)" />
+      <source src={`/media/videos/${base}-1080.mp4`} type="video/mp4" />
+    </video>
+  );
+}
 
 function RecipeModal({ recipe, onClose }) {
   if (!recipe) return null;
@@ -37,12 +83,22 @@ function RecipeModal({ recipe, onClose }) {
           position: "relative",
         }}
       >
-        <img
-          src={`/media/images/${recipe.image}`}
-          alt={recipe.title}
-          className="warm-filter"
-          style={{ width: "100%", height: "260px", objectFit: "cover" }}
-        />
+        {videoBaseFor(recipe) ? (
+          <RecipeVideo
+            base={videoBaseFor(recipe)}
+            poster={`/media/images/${recipe.image}`}
+            title={recipe.title}
+            className="warm-filter"
+            style={{ width: "100%", height: "260px", objectFit: "cover", display: "block" }}
+          />
+        ) : (
+          <img
+            src={`/media/images/${recipe.image}`}
+            alt={recipe.title}
+            className="warm-filter"
+            style={{ width: "100%", height: "260px", objectFit: "cover" }}
+          />
+        )}
         <button
           onClick={onClose}
           style={{
@@ -164,14 +220,24 @@ export default function RecipeCard({ recipesData }) {
           {recipes.map((recipe, i) => (
             <div key={recipe._id} ref={(el) => (cardsRef.current[i] = el)} className="recipe-card">
               <div style={{ position: "relative", overflow: "hidden", height: "240px" }}>
-                <img
-                  src={`/media/images/${recipe.image}`}
-                  alt={recipe.title}
-                  className="warm-filter"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
-                  onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
-                  onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
-                />
+                {videoBaseFor(recipe) ? (
+                  <RecipeVideo
+                    base={videoBaseFor(recipe)}
+                    poster={`/media/images/${recipe.image}`}
+                    title={recipe.title}
+                    className="warm-filter"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.5s ease" }}
+                  />
+                ) : (
+                  <img
+                    src={`/media/images/${recipe.image}`}
+                    alt={recipe.title}
+                    className="warm-filter"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
+                    onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
+                    onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+                  />
+                )}
                 <div style={{ position: "absolute", top: "1rem", left: "1rem", display: "flex", gap: "0.4rem" }}>
                   {recipe.tags?.slice(0, 2).map((tag) => (
                     <span
