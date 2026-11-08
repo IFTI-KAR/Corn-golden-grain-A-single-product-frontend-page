@@ -6,35 +6,71 @@ gsap.registerPlugin(ScrollTrigger);
 const BENEFITS = [
   {
     icon: "👁️",
+    video: "benefit-01-eye",
     title: "Eye Health",
     subtitle: "Lutein & Zeaxanthin",
     body: "Corn is one of the richest dietary sources of lutein and zeaxanthin — carotenoids that protect the macula and reduce the risk of age-related macular degeneration.",
   },
   {
     icon: "🌿",
+    video: "benefit-02-digest",
     title: "Digestive Health",
     subtitle: "Dietary Fiber",
     body: "With 2.4g of fiber per 100g, corn supports healthy gut bacteria, regular bowel movement, and reduces the risk of colorectal issues.",
   },
   {
     icon: "⚡",
+    video: "benefit-03-energy",
     title: "Energy Source",
     subtitle: "Complex Carbohydrates",
     body: "Corn's complex carbohydrates provide a slow, sustained release of energy — making it an ideal fuel for both body and brain.",
   },
   {
     icon: "❤️",
+    video: "benefit-04-heart",
     title: "Heart Health",
     subtitle: "Folate & Potassium",
     body: "Folate helps lower homocysteine levels while potassium regulates blood pressure — together they form a powerful cardiovascular shield.",
   },
   {
     icon: "🛡️",
+    video: "benefit-05-immune",
     title: "Immune Boost",
     subtitle: "Vitamin C & Antioxidants",
     body: "Corn's antioxidant compounds — including beta-carotene, quercetin, and Vitamin C — combat free radicals and bolster the immune system.",
   },
 ];
+
+function BenefitVideo({ base, title }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const play = () => v.play().catch(() => {});
+    const pause = () => v.pause();
+    let observer;
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(([e]) => (e.isIntersecting ? play() : pause()), { threshold: 0.2 });
+      observer.observe(v);
+    }
+    return () => observer?.disconnect();
+  }, []);
+  return (
+    <video
+      ref={ref}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      aria-label={`${title} — video`}
+      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+    >
+      <source src={`/media/videos/${base}-720.mp4`} type="video/mp4" media="(max-width: 767px)" />
+      <source src={`/media/videos/${base}-1080.mp4`} type="video/mp4" />
+    </video>
+  );
+}
 
 export default function HealthBenefits() {
   const sectionRef = useRef(null);
@@ -113,7 +149,7 @@ export default function HealthBenefits() {
         <div
           ref={lineRef}
           className="timeline-line"
-          style={{ height: `${BENEFITS.length * 160}px` }}
+          style={{ height: `${BENEFITS.length * 195}px` }}
         />
 
         {/* Benefits */}
@@ -123,7 +159,9 @@ export default function HealthBenefits() {
             ref={(el) => (itemRefs.current[i] = el)}
             className="benefit-item"
           >
-            <div className="benefit-icon">{benefit.icon}</div>
+            <div style={{ flexShrink: 0, width: "180px", maxWidth: "40vw", aspectRatio: "16 / 10", overflow: "hidden", borderRadius: "4px", background: "#000", border: "2px solid var(--corn-gold)", zIndex: 1, position: "relative" }}>
+              <BenefitVideo base={benefit.video} title={benefit.title} />
+            </div>
             <div style={{ paddingTop: "0.5rem" }}>
               <span className="mono-label" style={{ color: "var(--burnt-amber)", display: "block", marginBottom: "0.4rem" }}>
                 {benefit.subtitle}
